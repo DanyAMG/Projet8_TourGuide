@@ -56,7 +56,8 @@ public class TourGuideService : ITourGuideService
 
     public User GetUser(string userName)
     {
-        return _internalUserMap.ContainsKey(userName) ? _internalUserMap[userName] : null;
+        var u = _internalUserMap.ContainsKey(userName) ? _internalUserMap[userName] : null;
+        return u;
     }
 
     public List<User> GetAllUsers()
@@ -75,6 +76,7 @@ public class TourGuideService : ITourGuideService
     public List<Provider> GetTripDeals(User user)
     {
         int cumulativeRewardPoints = user.UserRewards.Sum(i => i.RewardPoints);
+
         List<Provider> providers = _tripPricer.GetPrice(TripPricerApiKey, user.UserId,
             user.UserPreferences.NumberOfAdults, user.UserPreferences.NumberOfChildren,
             user.UserPreferences.TripDuration, cumulativeRewardPoints);

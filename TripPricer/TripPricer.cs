@@ -17,7 +17,8 @@ public class TripPricer
         // Sleep to simulate some latency
         Thread.Sleep(ThreadLocalRandom.Current.Next(1, 50));
 
-        for (int i = 0; i < 5; i++)
+
+        for (int i = 0; i < 10; i++)
         {
             int multiple = ThreadLocalRandom.Current.Next(100, 700);
             double childrenDiscount = children / 3.0;
@@ -28,11 +29,8 @@ public class TripPricer
                 price = 0.0;
             }
 
-            string provider;
-            do
-            {
-                provider = GetProviderName(apiKey, adults);
-            } while (providersUsed.Contains(provider));
+            string provider = GetProviderName(apiKey, adults, i+1);
+           
 
             providersUsed.Add(provider);
             providers.Add(new Provider(attractionId, provider, price));
@@ -40,9 +38,8 @@ public class TripPricer
         return providers;
     }
 
-    public string GetProviderName(string apiKey, int adults)
+    public string GetProviderName(string apiKey, int adults, int multiple)
     {
-        int multiple = ThreadLocalRandom.Current.Next(1, 10);
 
         return multiple switch
         {
