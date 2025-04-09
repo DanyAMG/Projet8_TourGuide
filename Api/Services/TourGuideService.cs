@@ -94,16 +94,15 @@ public class TourGuideService : ITourGuideService
 
     public List<Attraction> GetNearByAttractions(VisitedLocation visitedLocation)
     {
-        List<Attraction> nearbyAttractions = new ();
+        List<(double distance, Attraction attraction)> nearbyAttractions = new ();
         foreach (var attraction in _gpsUtil.GetAttractions())
         {
-            if (_rewardsService.IsWithinAttractionProximity(attraction, visitedLocation.Location))
-            {
-                nearbyAttractions.Add(attraction);
-            }
+            var distance = _rewardsService.GetDistance(attraction, visitedLocation.Location);
+
+            nearbyAttractions.Add((distance, attraction));
         }
 
-        return nearbyAttractions;
+        return nearbyAttractions.OrderBy(o=>o.distance).Select(o=>o.attraction).Take(5).ToList();
     }
 
     private void AddShutDownHook()
