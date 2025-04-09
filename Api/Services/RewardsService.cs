@@ -35,7 +35,7 @@ public class RewardsService : IRewardsService
     public void CalculateRewards(User user)
     {
         count++;
-        List<VisitedLocation> userLocations = user.VisitedLocations;
+        List<VisitedLocation> userLocations = user.VisitedLocations.ToList();
         List<Attraction> attractions = _gpsUtil.GetAttractions();
 
         foreach (var visitedLocation in userLocations)
@@ -55,6 +55,7 @@ public class RewardsService : IRewardsService
 
     public bool IsWithinAttractionProximity(Attraction attraction, Locations location)
     {
+
         Console.WriteLine(GetDistance(attraction, location));
         return GetDistance(attraction, location) <= _attractionProximityRange;
     }
@@ -63,6 +64,7 @@ public class RewardsService : IRewardsService
     {
         return GetDistance(attraction, visitedLocation.Location) <= _proximityBuffer;
     }
+
 
     private int GetRewardPoints(Attraction attraction, User user)
     {
