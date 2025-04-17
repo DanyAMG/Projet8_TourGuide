@@ -32,11 +32,11 @@ public class RewardsService : IRewardsService
         _proximityBuffer = _defaultProximityBuffer;
     }
 
-    public void CalculateRewards(User user)
+    public async Task CalculateRewardsAsync(User user)
     {
         count++;
         List<VisitedLocation> userLocations = user.VisitedLocations.ToList();
-        List<Attraction> attractions = _gpsUtil.GetAttractions();
+        List<Attraction> attractions = await _gpsUtil.GetAttractionsAsync();
 
         foreach (var visitedLocation in userLocations)
         {

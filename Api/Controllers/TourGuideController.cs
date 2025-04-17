@@ -18,9 +18,9 @@ public class TourGuideController : ControllerBase
     }
 
     [HttpGet("getLocation")]
-    public ActionResult<VisitedLocation> GetLocation([FromQuery] string userName)
+    public async Task<ActionResult<VisitedLocation>> GetLocationAsync([FromQuery] string userName)
     {
-        var location = _tourGuideService.GetUserLocation(GetUser(userName));
+        var location = await _tourGuideService.GetUserLocationAsync(GetUser(userName));
         return Ok(location);
     }
 
@@ -34,24 +34,24 @@ public class TourGuideController : ControllerBase
     // The reward points for visiting each Attraction.
     //    Note: Attraction reward points can be gathered from RewardsCentral
     [HttpGet("getNearbyAttractions")]
-    public ActionResult<List<Attraction>> GetNearbyAttractions([FromQuery] string userName)
+    public async Task<ActionResult<List<Attraction>>> GetNearbyAttractionsAsync([FromQuery] string userName)
     {
-        var visitedLocation = _tourGuideService.GetUserLocation(GetUser(userName));
-        var attractions = _tourGuideService.GetNearByAttractions(visitedLocation);
+        var visitedLocation = await _tourGuideService.GetUserLocationAsync(GetUser(userName));
+        var attractions = await _tourGuideService.GetNearByAttractionsAsync(visitedLocation);
         return Ok(attractions);
     }
 
     [HttpGet("getRewards")]
-    public ActionResult<List<UserReward>> GetRewards([FromQuery] string userName)
+    public async Task<ActionResult<List<UserReward>>> GetRewardsAsync([FromQuery] string userName)
     {
-        var rewards = _tourGuideService.GetUserRewards(GetUser(userName));
+        var rewards = await _tourGuideService.GetUserRewardsAsync(GetUser(userName));
         return Ok(rewards);
     }
 
     [HttpGet("getTripDeals")]
-    public ActionResult<List<Provider>> GetTripDeals([FromQuery] string userName)
+    public async Task<ActionResult<List<Provider>>> GetTripDealsAsync([FromQuery] string userName)
     {
-        var deals = _tourGuideService.GetTripDeals(GetUser(userName));
+        var deals = await _tourGuideService.GetTripDealsAsync(GetUser(userName));
         return Ok(deals);
     }
 
