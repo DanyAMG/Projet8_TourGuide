@@ -1,5 +1,6 @@
 ﻿using GpsUtil.Location;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using TourGuide.LibrairiesWrappers.Interfaces;
@@ -17,7 +18,7 @@ public class TourGuideService : ITourGuideService
     private readonly IRewardsService _rewardsService;
     private readonly TripPricer.TripPricer _tripPricer;
     public Tracker Tracker { get; private set; }
-    private readonly Dictionary<string, User> _internalUserMap = new();
+    private readonly ConcurrentDictionary<string, User> _internalUserMap;
     private const string TripPricerApiKey = "test-server-api-key";
     private bool _testMode = true;
 
@@ -27,6 +28,7 @@ public class TourGuideService : ITourGuideService
         _tripPricer = new();
         _gpsUtil = gpsUtil;
         _rewardsService = rewardsService;
+        _internalUserMap = new ConcurrentDictionary<string, User>();
 
         CultureInfo.CurrentCulture = new CultureInfo("en-US");
 
@@ -44,14 +46,14 @@ public class TourGuideService : ITourGuideService
         AddShutDownHook();
     }
 
-    public List<UserReward> GetUserRewards(User user)
+    public async Task<List<UserReward>> GetUserRewardsAsync(User user)
     {
-        return user.UserRewards;
+        return await Task.FromResult(user.UserRewards);
     }
 
-    public VisitedLocation GetUserLocation(User user)
+    public async Task <VisitedLocation> GetUserLocationAsync(User user)
     {
-        return user.VisitedLocations.Any() ? user.GetLastVisitedLocation() : TrackUserLocation(user);
+        return user.VisitedLocations.Any() ? user.GetLastVisitedLocation() : await TrackUserLocationAsync(user);
     }
 
     public User GetUser(string userName)
@@ -69,33 +71,36 @@ public class TourGuideService : ITourGuideService
     {
         if (!_internalUserMap.ContainsKey(user.UserName))
         {
-            _internalUserMap.Add(user.UserName, user);
+            _internalUserMap.TryAdd(user.UserName, user);
         }
     }
 
-    public List<Provider> GetTripDeals(User user)
+    public async Task<List<Provider>> GetTripDealsAsync(User user)
     {
         int cumulativeRewardPoints = user.UserRewards.Sum(i => i.RewardPoints);
 
-        List<Provider> providers = _tripPricer.GetPrice(TripPricerApiKey, user.UserId,
+        List<Provider> providers = await _tripPricer.GetPriceAsync(TripPricerApiKey, user.UserId,
             user.UserPreferences.NumberOfAdults, user.UserPreferences.NumberOfChildren,
             user.UserPreferences.TripDuration, cumulativeRewardPoints);
         user.TripDeals = providers;
         return providers;
     }
 
-    public VisitedLocation TrackUserLocation(User user)
+    public async Task<VisitedLocation> TrackUserLocationAsync(User user)
     {
-        VisitedLocation visitedLocation = _gpsUtil.GetUserLocation(user.UserId);
+        VisitedLocation visitedLocation = await _gpsUtil.GetUserLocationAsync(user.UserId);
         user.AddToVisitedLocations(visitedLocation);
-        _rewardsService.CalculateRewards(user);
+        await _rewardsService.CalculateRewardsAsync(user);
         return visitedLocation;
     }
 
-    public List<Attraction> GetNearByAttractions(VisitedLocation visitedLocation)
+    public async Task<List<Attraction>> GetNearByAttractionsAsync(VisitedLocation visitedLocation)
     {
         List<(double distance, Attraction attraction)> nearbyAttractions = new ();
-        foreach (var attraction in _gpsUtil.GetAttractions())
+
+        var attractions = await _gpsUtil.GetAttractionsAsync();
+
+        foreach (var attraction in attractions)
         {
             var distance = _rewardsService.GetDistance(attraction, visitedLocation.Location);
 
@@ -116,15 +121,23 @@ public class TourGuideService : ITourGuideService
     * 
     **********************************************************************************/
 
-    private void InitializeInternalUsers()
+    private async Task InitializeInternalUsers()
     {
+        var tasks = new List<Task>();
+
         for (int i = 0; i < InternalTestHelper.GetInternalUserNumber(); i++)
         {
             var userName = $"internalUser{i}";
             var user = new User(Guid.NewGuid(), userName, "000", $"{userName}@tourGuide.com");
-            GenerateUserLocationHistory(user);
-            _internalUserMap.Add(userName, user);
+
+            tasks.Add(Task.Run(() =>
+            {
+                GenerateUserLocationHistory(user);
+                _internalUserMap[userName] = user;
+            }));
         }
+
+        await Task.WhenAll(tasks);
 
         _logger.LogDebug($"Created {InternalTestHelper.GetInternalUserNumber()} internal test users.");
     }

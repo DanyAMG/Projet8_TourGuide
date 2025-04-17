@@ -9,13 +9,13 @@ namespace TripPricer;
 
 public class TripPricer
 {
-    public List<Provider> GetPrice(string apiKey, Guid attractionId, int adults, int children, int nightsStay, int rewardsPoints)
+    public async Task<List<Provider>> GetPriceAsync(string apiKey, Guid attractionId, int adults, int children, int nightsStay, int rewardsPoints)
     {
         List<Provider> providers = new List<Provider>();
         HashSet<string> providersUsed = new HashSet<string>();
 
         // Sleep to simulate some latency
-        Thread.Sleep(ThreadLocalRandom.Current.Next(1, 50));
+        await Task.Delay(ThreadLocalRandom.Current.Next(1, 50));
 
 
         for (int i = 0; i < 10; i++)
@@ -30,10 +30,13 @@ public class TripPricer
             }
 
             string provider = GetProviderName(apiKey, adults, i+1);
-           
 
-            providersUsed.Add(provider);
-            providers.Add(new Provider(attractionId, provider, price));
+
+            if (!providersUsed.Contains(provider))
+            {
+                providersUsed.Add(provider);
+                providers.Add(new Provider(attractionId, provider, price));
+            }
         }
         return providers;
     }
