@@ -87,14 +87,14 @@ public class GpsUtil
         }
     }
 
-    private async Task SleepAsync()
+    private Task SleepAsync()
     {
         int delay = ThreadLocalRandom.Current.Next(30, 100);
-        await Task.Delay(delay);
+        return Task.Delay(delay);
     }
 
-    private async Task SleepLighterAsync()
+    private Task SleepLighterAsync()
     {
-        await Task.Delay(10);
+        return Task.Delay(10);
     }
 }
