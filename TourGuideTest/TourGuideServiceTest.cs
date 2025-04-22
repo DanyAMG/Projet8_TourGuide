@@ -26,6 +26,7 @@ namespace TourGuideTest
         }
 
         [Fact]
+        [Trait("Category", "Unit")]
         public async Task GetUserLocation()
         {
             _fixture.Initialize(0);
@@ -37,6 +38,7 @@ namespace TourGuideTest
         }
 
         [Fact]
+        [Trait("Category", "Unit")]
         public void AddUser()
         {
             _fixture.Initialize(0);
@@ -56,6 +58,7 @@ namespace TourGuideTest
         }
 
         [Fact]
+        [Trait("Category", "Unit")]
         public void GetAllUsers()
         {
             _fixture.Initialize(0);
@@ -74,6 +77,7 @@ namespace TourGuideTest
         }
 
         [Fact]
+        [Trait("Category", "Unit")]
         public async Task TrackUser()
         {
             _fixture.Initialize();
@@ -86,6 +90,7 @@ namespace TourGuideTest
         }
 
         [Fact]
+        [Trait("Category", "Unit")]
         public async Task GetNearbyAttractions()
         {
             _fixture.Initialize(0);
@@ -100,6 +105,7 @@ namespace TourGuideTest
         }
 
         [Fact]
+        [Trait("Category", "Unit")]
         public async Task GetTripDeals()
         {
             _fixture.Initialize(0);
