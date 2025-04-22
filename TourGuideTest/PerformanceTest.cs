@@ -45,6 +45,7 @@ namespace TourGuideTest
         }
 
         [Fact]
+        [Trait("Category", "Performance")]
         public void HighVolumeTrackLocation()
         {
             //On peut ici augmenter le nombre d'utilisateurs pour tester les performances
@@ -68,6 +69,7 @@ namespace TourGuideTest
         }
 
         [Fact]
+        [Trait("Category", "Performance")]
         public async Task HighVolumeGetRewards()
         {
             //On peut ici augmenter le nombre d'utilisateurs pour tester les performances

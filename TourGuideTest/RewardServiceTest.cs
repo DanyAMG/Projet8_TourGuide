@@ -19,6 +19,7 @@ public class RewardServiceTest : IClassFixture<DependencyFixture>
     }
 
     [Fact]
+    [Trait("Category", "Unit")]
     public async Task UserGetRewards()
     {
         _fixture.Initialize(0);
@@ -33,6 +34,7 @@ public class RewardServiceTest : IClassFixture<DependencyFixture>
     }
 
     [Fact]
+    [Trait("Category", "Unit")]
     public async Task IsWithinAttractionProximity()
     {
         var attractions = await _fixture.GpsUtil.GetAttractionsAsync();
@@ -41,6 +43,7 @@ public class RewardServiceTest : IClassFixture<DependencyFixture>
     }
 
     [Fact]
+    [Trait("Category", "Unit")]
     public async Task NearAllAttractions()
     {
         _fixture.Initialize(1);
